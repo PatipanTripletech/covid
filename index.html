@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Web SQL Example</title>
+  </head>
+  <body>
+    <h1>COVID-19 Data</h1>
+    <table id="covidTable">
+      <!-- ตาราง HTML ที่จะใช้แสดงข้อมูล -->
+    </table>
+  
+    <script>
+      // เช็คสำหรับการรองรับ Web SQL ในเบราว์เซอร์
+      if (window.openDatabase) {
+        const db = openDatabase(
+          "mydatabase",
+          "1.0",
+          "My Database",
+          2 * 1024 * 1024
+        );
+  
+        // สร้างตารางข้อมูลบนหน้าเว็บ
+        const covidTable = document.getElementById('covidTable');
+        covidTable.innerHTML = '<tr><th>Country</th><th>Cases</th></tr>';
+  
+        // ดึงข้อมูล
+        db.transaction(function (tx) {
+          tx.executeSql("SELECT * FROM covid_data", [], function (tx, results) {
+            const len = results.rows.length;
+            for (let i = 0; i < len; i++) {
+              const row = results.rows.item(i);
+              const newRow = covidTable.insertRow();
+              const countryCell = newRow.insertCell(0);
+              const casesCell = newRow.insertCell(1);
+              countryCell.textContent = row.country;
+              casesCell.textContent = row.cases;
+            }
+          });
+        });
+      } else {
+        console.error("Web SQL not supported by this browser.");
+      }
+    </script>
+  </body>
+</html>
